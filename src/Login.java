@@ -1,9 +1,7 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.BorderLayout;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.sql.*;
 
 import javax.swing.*;
 
@@ -13,7 +11,7 @@ public class Login extends JFrame implements ActionListener {
     JLabel user_label, password_label, message;
     JTextField userName_text;
     JPasswordField password_text;
-    JButton submit, cancel;
+    JButton submit, cancel;;
 
     Login() {
         setTitle("Login");
@@ -64,6 +62,7 @@ public class Login extends JFrame implements ActionListener {
         panel.add(password_text, gbc);
 
         submit = new JButton("Submit");
+        submit.addActionListener(this);
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 4;
@@ -84,6 +83,7 @@ public class Login extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent ae) {
         String userName = userName_text.getText();
         String password = password_text.getText();
+        GetData(userName, password);
         if (userName.trim().equals("admin") && password.trim().equals("admin")) {
             message.setText(" Hello " + userName
                     + "");
@@ -93,4 +93,19 @@ public class Login extends JFrame implements ActionListener {
 
     }
 
+    private void GetData(String user_id, String password){ // menampilkan data dari database
+        try {
+            Connection conn = (Connection) Koneksi.koneksiDB();
+            Statement stm = conn.createStatement();
+            ResultSet sql = stm.executeQuery("select * from users where user_id = '" + user_id +
+                    "' and password = '" + password + "'");
+           if (sql.next()){
+               String id = sql.getString("first_name");
+               userName_text.setText(id);
+               System.out.println("login berhasil!");
+           }
+        }
+        catch (SQLException | HeadlessException e) {
+        }
+    }
 }
