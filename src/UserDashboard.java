@@ -1,9 +1,12 @@
 import javax.swing.*;
 import java.awt.*;
+import java.sql.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class UserDashboard extends JFrame implements ActionListener {
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
+public class UserDashboard extends JFrame {
 
     private JButton absen;
     private JLabel absenYet;
@@ -14,8 +17,20 @@ public class UserDashboard extends JFrame implements ActionListener {
     private JPanel panelTengah;
 
     private String user_id, user_type, user_name;
+    private String date_now, time_now, absen_time;
+    private boolean absen_status;
 
     public UserDashboard(String user_id, String user_type, String user_name) {
+        this.user_id = user_id;
+        this.user_type = user_type;
+        this.user_name = user_name;
+
+        DateTimeFormatter datef = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+        DateTimeFormatter timef = DateTimeFormatter.ofPattern("HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        date_now = datef.format(now);
+        time_now = timef.format(now);
+
         setTitle("Absen");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new Dimension(800, 600));
@@ -31,7 +46,7 @@ public class UserDashboard extends JFrame implements ActionListener {
         panelAtas.setLayout(new GridBagLayout());
         greet = new JLabel();
         greet.setFont(new Font("Dialog", 1, 36));
-        greet.setText("Selamat Datang, USER!");
+        greet.setText("Selamat Datang, " + this.user_name + "!");
         panelAtas.add(greet, new GridBagConstraints());
         panel.add(panelAtas);
 
@@ -40,16 +55,32 @@ public class UserDashboard extends JFrame implements ActionListener {
         panelTengah.setLayout(new GridBagLayout());
         absenYet = new JLabel();
         absenYet.setFont(new Font("Dialog", 1, 18)); // NOI18N
-        absenYet.setText("Anda belum absen, silahkan absen terlebih dahulu!");
+        checkAbsen();
+        if (!absen_status){
+            absenYet.setText("Anda belum absen, silahkan absen terlebih dahulu!");
+        }else{
+            absenYet.setText("Anda sudah absen pada jam " + absen_time + ", Terimakasih!");
+        }
         panelTengah.add(absenYet, new GridBagConstraints());
+        panel.add(panelTengah);
 
         panelBawah = new JPanel();
-        panel.add(panelTengah);
         panelBawah.setLayout(new BorderLayout());
-        absen = new JButton();
-        absen.setText("Absen");
-        absen.addActionListener(this);
-        panelBawah.add(absen, BorderLayout.CENTER);
+        if(!absen_status){
+            absen = new JButton();
+            absen.setText("Absen");
+            absen.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+                    if(insertAbsen()){
+                        checkAbsen();
+                        absen.setVisible(false);
+                        absenYet.setText("Anda sudah absen pada jam " + absen_time + ", Terimakasih!");
+                    }
+                }
+            });
+            panelBawah.add(absen, BorderLayout.CENTER);
+        }
 
         panel.add(panelBawah);
 
@@ -57,11 +88,42 @@ public class UserDashboard extends JFrame implements ActionListener {
         setVisible(true);
     }
 
-    @Override
-    public void actionPerformed(ActionEvent ae) {
+    private boolean insertAbsen(){
+        try {
+            Connection conn = Koneksi.koneksiDB();
+            Statement stm = conn.createStatement();
+            String query = "insert into absen_harian values( "
+                    + "'" + user_id + "',"
+                    + "'" + date_now + "',"
+                    + "'" + time_now + "')";
+            stm.executeUpdate(query);
+            return true;
+        } catch (SQLException | HeadlessException e) {
+            JOptionPane.showMessageDialog(null, e, "Error!", JOptionPane.ERROR_MESSAGE);
+            System.out.println(e);
+        }
 
+        return false;
     }
 
+    private void checkAbsen() {
+        try {
+            Connection conn = Koneksi.koneksiDB();
+            Statement stm = conn.createStatement();
+
+            String query = "select absen_time from absen_harian where user_id = '" + user_id + "' and absen_date = '" + date_now + "'";
+            ResultSet sql = stm.executeQuery(query);
+            if (sql.next()) {
+                absen_time = sql.getString("absen_time");
+                absen_status = true;
+            } else {
+                absen_status = false;
+            }
+        } catch (SQLException | HeadlessException e) {
+            JOptionPane.showMessageDialog(null, e, "Error!", JOptionPane.ERROR_MESSAGE);
+            System.out.println(e);
+        }
+    }
 //    public static void main(String args[]) {
 //        new UserDashboard();
 //    }
