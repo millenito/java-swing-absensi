@@ -5,16 +5,18 @@ import javax.swing.JOptionPane;
 
 public class Koneksi { // koneksi ke database
     private static Connection mysqlkonek;
+
     public static Connection koneksiDB() throws SQLException {
-        if(mysqlkonek==null){
+        if (mysqlkonek == null) {
             try {
-                String DB="jdbc:mysql://localhost:3306/AbsensiKaryawan"; // delta_db database
-                String user="root"; // user database
-                String pass=""; // password database
-                DriverManager.registerDriver(new com.mysql.jdbc.Driver());
-                mysqlkonek = (Connection) DriverManager.getConnection(DB,user,pass);
+                String DB = "jdbc:mysql://localhost:3306/AbsensiKaryawan"; // Nama Database
+                String user = "root"; // User database
+                String pass = ""; // Password database
+                DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
+                mysqlkonek = (Connection) DriverManager.getConnection(DB, user, pass);
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(null,"gagal koneksi");
+                System.out.println(e);
+                JOptionPane.showMessageDialog(null, e, "Gagal konek ke mysql", JOptionPane.ERROR_MESSAGE);
             }
         }
         return mysqlkonek;
