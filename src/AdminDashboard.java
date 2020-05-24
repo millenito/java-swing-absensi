@@ -5,24 +5,27 @@ import java.sql.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class AdminDashboard extends JFrame {
+final public class AdminDashboard extends Dashboard {
 
+    private JButton sign_out;
     private JButton btn_absen;
     private JButton btn_add_user;
     private JPanel panel;
-    private JPanel top_panel;
+    private JPanel panel_atas;
     private JPanel panel_absen;
     private JPanel panel_add_user;
-    private JPanel table_panel;
-    private JScrollPane scroll_panel;
+    private JPanel panel_table;
+    private JScrollPane panel_scroll;
     private JTable tbl_list_user;
     private DefaultTableModel tableModel;
 
-    public AdminDashboard() {
+    AdminDashboard(String user_id, String user_type, String user_name) {
+        super(user_id, user_type, user_name);
         initGUI();
     }
 
-    private void initGUI() {
+    public void initGUI() {
+        setTitle("Admin");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new Dimension(800, 600));
         setSize(new Dimension(800, 600));
@@ -31,22 +34,40 @@ public class AdminDashboard extends JFrame {
         panel.setLayout(new BorderLayout());
         add(panel, BorderLayout.CENTER);
 
-        top_panel = new JPanel();
-        top_panel.setLayout(new BoxLayout(top_panel, BoxLayout.LINE_AXIS));
-        panel.add(top_panel, BorderLayout.PAGE_START);
+        panel_atas = new JPanel();
+        panel_atas.setLayout(new BoxLayout(panel_atas, BoxLayout.LINE_AXIS));
+        panel.add(panel_atas, BorderLayout.PAGE_START);
+
+         // Tombol Signout
+        sign_out = new JButton();
+        sign_out.setText("Sign out");
+        sign_out.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                signout(evt);
+            }
+        });
+        panel_atas.add(sign_out);
 
         // Tombol Absen
         panel_absen = new JPanel();
         panel_absen.setLayout(new FlowLayout(FlowLayout.LEFT));
-        btn_absen = new JButton();
-        btn_absen.setText("Absen");
-        btn_absen.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                btn_absenActionPerformed(evt);
-            }
-        });
-        panel_absen.add(btn_absen);
-        top_panel.add(panel_absen);
+        System.out.println(absen_status);
+        if(!checkAbsen()) {
+            btn_absen = new JButton();
+            btn_absen.setText("Absen");
+            btn_absen.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+                    if (insertAbsen()) {
+                        checkAbsen();
+                        getUsers();
+                        btn_absen.setVisible(false);
+                    }
+                }
+            });
+            panel_absen.add(btn_absen);
+        }
+        panel_atas.add(panel_absen);
 
         // Tombol Tambah User
         panel_add_user = new JPanel();
@@ -54,11 +75,11 @@ public class AdminDashboard extends JFrame {
         btn_add_user = new JButton();
         btn_add_user.setText("Tambah");
         panel_add_user.add(btn_add_user);
-        top_panel.add(panel_add_user);
+        panel_atas.add(panel_add_user);
 
-        table_panel = new JPanel();
-        table_panel.setLayout(new BorderLayout());
-        panel.add(table_panel, BorderLayout.CENTER);
+        panel_table = new JPanel();
+        panel_table.setLayout(new BorderLayout());
+        panel.add(panel_table, BorderLayout.CENTER);
 
         tbl_list_user = new JTable();
         tableModel = new DefaultTableModel(null,
@@ -77,24 +98,21 @@ public class AdminDashboard extends JFrame {
         tbl_list_user.setModel(tableModel);
         getUsers();
 
-        scroll_panel = new JScrollPane();
-        scroll_panel.setViewportView(tbl_list_user);
+        panel_scroll = new JScrollPane();
+        panel_scroll.setViewportView(tbl_list_user);
         if (tbl_list_user.getColumnModel().getColumnCount() > 0) {
             tbl_list_user.getColumnModel().getColumn(3).setPreferredWidth(50);
             tbl_list_user.getColumnModel().getColumn(3).setMaxWidth(50);
             tbl_list_user.getColumnModel().getColumn(4).setPreferredWidth(50);
             tbl_list_user.getColumnModel().getColumn(4).setMaxWidth(50);
         }
-        table_panel.add(scroll_panel, BorderLayout.CENTER);
+        panel_table.add(panel_scroll, BorderLayout.CENTER);
 
         pack();
         setVisible(true);
     }
 
-    private void btn_absenActionPerformed(ActionEvent evt) {
-        // TODO add your handling code here:
-    }
-
+    // Mengisi table dengan data2 users
     private void getUsers() {
         try {
             Connection conn = Koneksi.koneksiDB();
@@ -111,7 +129,7 @@ public class AdminDashboard extends JFrame {
                             + "         absen_harian a"
                             + "     where"
                             + "         a.user_id = u.user_id"
-                            + "         and a.absen_date = '2020-05-24') > 0 then 'Ya'"
+                            + "         and a.absen_date = '" + date_now + "') > 0 then 'Ya'"
                             + "     else 'Belum'"
                             + " END) as sudah_absen"
                           + "  from"
@@ -134,7 +152,7 @@ public class AdminDashboard extends JFrame {
         }
     }
 
-    public static void main(String args[]) {
-        new AdminDashboard();
-    }
+//    public static void main(String args[]) {
+//        new AdminDashboard();
+//    }
 }

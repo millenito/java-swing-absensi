@@ -76,7 +76,7 @@ public class Login extends JFrame implements ActionListener {
         password_text = new JPasswordField();
         panel.add(password_text, gbc);
 
-        submit = new JButton("Submit");
+        submit = new JButton("Sign in");
         submit.addActionListener(this);
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -95,7 +95,11 @@ public class Login extends JFrame implements ActionListener {
         String userName = userName_text.getText();
         String password = password_text.getText();
         if(auth(userName, password)){
-            new UserDashboard(user_id, user_type, user_name);
+            if(user_type.equals("ADMIN")){
+                new AdminDashboard(user_id, user_type, user_name);
+            }else{
+                new UserDashboard(user_id, user_type, user_name);
+            }
             getContentPane().setVisible(false);
             dispose();
         }else{
