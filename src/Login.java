@@ -20,6 +20,10 @@ public class Login extends JFrame implements ActionListener {
     private String user_id, user_type, user_name;
 
     Login() {
+        initGUI();
+    }
+
+    private void initGUI(){
         setTitle("Login");
         setSize(430, 230);
         setDefaultCloseOperation(EXIT_ON_CLOSE);

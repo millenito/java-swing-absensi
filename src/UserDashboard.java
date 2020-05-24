@@ -31,6 +31,10 @@ public class UserDashboard extends JFrame {
         date_now = datef.format(now);
         time_now = timef.format(now);
 
+        initGUI();
+    }
+
+    private void initGUI(){
         setTitle("Absen");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new Dimension(800, 600));
@@ -46,7 +50,7 @@ public class UserDashboard extends JFrame {
         panelAtas.setLayout(new GridBagLayout());
         greet = new JLabel();
         greet.setFont(new Font("Dialog", 1, 36));
-        greet.setText("Selamat Datang, " + this.user_name + "!");
+        greet.setText("Selamat Datang, " + user_name + "!");
         panelAtas.add(greet, new GridBagConstraints());
         panel.add(panelAtas);
 
@@ -54,7 +58,7 @@ public class UserDashboard extends JFrame {
         panelTengah = new JPanel();
         panelTengah.setLayout(new GridBagLayout());
         absenYet = new JLabel();
-        absenYet.setFont(new Font("Dialog", 1, 18)); // NOI18N
+        absenYet.setFont(new Font("Dialog", 1, 18));
         checkAbsen();
         if (!absen_status){
             absenYet.setText("Anda belum absen, silahkan absen terlebih dahulu!");
@@ -81,7 +85,6 @@ public class UserDashboard extends JFrame {
             });
             panelBawah.add(absen, BorderLayout.CENTER);
         }
-
         panel.add(panelBawah);
 
         pack();
