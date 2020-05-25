@@ -1,5 +1,6 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.sql.*;
 import java.awt.event.ActionEvent;
@@ -84,11 +85,11 @@ final public class AdminDashboard extends Dashboard {
         tbl_list_user = new JTable();
         tableModel = new DefaultTableModel(null,
                 new String[]{
-                        "ID User", "Nama", "Sudah Absen", "", ""
+                        "ID User", "Nama", "Sudah Absen", "Edit", "Hapus"
                 }
         ) {
             boolean[] canEdit = new boolean[]{
-                    false, false, false, false, false
+                    false, false, false, true, true
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -97,19 +98,39 @@ final public class AdminDashboard extends Dashboard {
         };
         tbl_list_user.setModel(tableModel);
         getUsers();
+        tbl_list_user.getColumn("Edit").setCellRenderer(new ButtonRenderer());
+        tbl_list_user.getColumn("Edit").setCellEditor(new ButtonColumn(new JCheckBox()));
+        tbl_list_user.getColumn("Hapus").setCellRenderer(new ButtonRenderer());
+        tbl_list_user.getColumn("Hapus").setCellEditor(new ButtonColumn(new JCheckBox()));
 
         panel_scroll = new JScrollPane();
         panel_scroll.setViewportView(tbl_list_user);
         if (tbl_list_user.getColumnModel().getColumnCount() > 0) {
-            tbl_list_user.getColumnModel().getColumn(3).setPreferredWidth(50);
-            tbl_list_user.getColumnModel().getColumn(3).setMaxWidth(50);
-            tbl_list_user.getColumnModel().getColumn(4).setPreferredWidth(50);
-            tbl_list_user.getColumnModel().getColumn(4).setMaxWidth(50);
+            tbl_list_user.getColumnModel().getColumn(2).setPreferredWidth(100);
+            tbl_list_user.getColumnModel().getColumn(2).setMaxWidth(100);
+            tbl_list_user.getColumnModel().getColumn(3).setMaxWidth(80);
+            tbl_list_user.getColumnModel().getColumn(3).setPreferredWidth(80);
+            tbl_list_user.getColumnModel().getColumn(4).setMaxWidth(80);
+            tbl_list_user.getColumnModel().getColumn(4).setPreferredWidth(80);
         }
         panel_table.add(panel_scroll, BorderLayout.CENTER);
 
         pack();
         setVisible(true);
+    }
+
+    private void btnEditAction(){
+        int column = 0;
+        int row = tbl_list_user.getSelectedRow();
+        String value = tbl_list_user.getModel().getValueAt(row, column).toString();
+        JOptionPane.showMessageDialog(panel, "ini tombol EDIT " + value);
+    }
+
+    private void btnHapusAction(){
+        int column = 0;
+        int row = tbl_list_user.getSelectedRow();
+        String value = tbl_list_user.getModel().getValueAt(row, column).toString();
+        JOptionPane.showMessageDialog(panel, "ini tombol HAPUS " + value);
     }
 
     // Mengisi table dengan data2 users
@@ -143,6 +164,8 @@ final public class AdminDashboard extends Dashboard {
                         sql.getString("user_id"),
                         sql.getString("first_name") + " " + sql.getString("last_name"),
                         sql.getString("sudah_absen"),
+                        "Edit",
+                        "Hapus"
                 };
                 tableModel.addRow(data);
             }
@@ -152,6 +175,77 @@ final public class AdminDashboard extends Dashboard {
         }
     }
 
+    class ButtonRenderer extends JButton implements TableCellRenderer {
+        public ButtonRenderer() {
+            setOpaque(true);
+        }
+
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                                                       boolean isSelected, boolean hasFocus, int row, int column) {
+            if (isSelected) {
+                setForeground(table.getSelectionForeground());
+                setBackground(table.getSelectionBackground());
+            } else {
+                setForeground(table.getForeground());
+                setBackground(UIManager.getColor("Button.background"));
+            }
+            setText((value == null) ? "" : value.toString());
+            return this;
+        }
+    }
+
+    class ButtonColumn extends DefaultCellEditor {
+        protected JButton button;
+        private String label;
+        private boolean isPushed;
+
+        public ButtonColumn(JCheckBox checkBox) {
+            super(checkBox);
+            button = new JButton();
+            button.setOpaque(true);
+            button.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    fireEditingStopped();
+                }
+            });
+        }
+
+        public Component getTableCellEditorComponent(JTable table, Object value,
+                                                     boolean isSelected, int row, int column) {
+            if (isSelected) {
+                button.setForeground(table.getSelectionForeground());
+                button.setBackground(table.getSelectionBackground());
+            } else {
+                button.setForeground(table.getForeground());
+                button.setBackground(table.getBackground());
+            }
+            label = (value == null) ? "" : value.toString();
+            button.setText(label);
+            isPushed = true;
+            return button;
+        }
+
+        public Object getCellEditorValue() {
+            if (isPushed) {
+                if(label.equals("Edit")){
+                    btnEditAction();
+                }else if (label.equals("Hapus")){
+                    btnHapusAction();
+                }
+            }
+            isPushed = false;
+            return new String(label);
+        }
+
+        public boolean stopCellEditing() {
+            isPushed = false;
+            return super.stopCellEditing();
+        }
+
+        protected void fireEditingStopped() {
+            super.fireEditingStopped();
+        }
+    }
 //    public static void main(String args[]) {
 //        new AdminDashboard();
 //    }
