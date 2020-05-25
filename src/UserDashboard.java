@@ -97,7 +97,4 @@ final public class UserDashboard extends Dashboard {
         pack();
         setVisible(true);
     }
-//    public static void main(String args[]) {
-//        new UserDashboard();
-//    }
 }

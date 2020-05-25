@@ -38,7 +38,7 @@ public class Login extends JFrame implements ActionListener {
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.insets = new Insets(132, 103, 0, 0);
-        user_label = new JLabel("User");
+        user_label = new JLabel("ID User");
         panel.add(user_label, gbc);
 
         gbc = new GridBagConstraints();

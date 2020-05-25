@@ -52,7 +52,6 @@ final public class AdminDashboard extends Dashboard {
         // Tombol Absen
         panel_absen = new JPanel();
         panel_absen.setLayout(new FlowLayout(FlowLayout.LEFT));
-        System.out.println(absen_status);
         if(!checkAbsen()) {
             btn_absen = new JButton();
             btn_absen.setText("Absen");
@@ -75,6 +74,14 @@ final public class AdminDashboard extends Dashboard {
         panel_add_user.setLayout(new FlowLayout(FlowLayout.RIGHT));
         btn_add_user = new JButton();
         btn_add_user.setText("Tambah");
+        btn_add_user.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                new AddUser(user_id, user_type, user_name);
+                getContentPane().setVisible(false);
+                dispose();
+            }
+        });
         panel_add_user.add(btn_add_user);
         panel_atas.add(panel_add_user);
 
@@ -123,14 +130,22 @@ final public class AdminDashboard extends Dashboard {
         int column = 0;
         int row = tbl_list_user.getSelectedRow();
         String value = tbl_list_user.getModel().getValueAt(row, column).toString();
-        JOptionPane.showMessageDialog(panel, "ini tombol EDIT " + value);
+
+        new AddUser(user_id, user_type, user_name, value);
+        getContentPane().setVisible(false);
+        dispose();
     }
 
     private void btnHapusAction(){
         int column = 0;
         int row = tbl_list_user.getSelectedRow();
         String value = tbl_list_user.getModel().getValueAt(row, column).toString();
-        JOptionPane.showMessageDialog(panel, "ini tombol HAPUS " + value);
+
+        int input = JOptionPane.showConfirmDialog(null, "Apakah anda yakin ingin menghapus user " + value + "?", "Hapus User", JOptionPane.YES_NO_OPTION);
+        if (input == 0){
+            deleteUser(value);
+            getUsers();
+        }
     }
 
     // Mengisi table dengan data2 users
@@ -171,6 +186,19 @@ final public class AdminDashboard extends Dashboard {
             }
         } catch (SQLException | HeadlessException e) {
             JOptionPane.showMessageDialog(null, e, "Error!", JOptionPane.ERROR_MESSAGE);
+            System.out.println(e);
+        }
+    }
+
+    private void deleteUser(String delete_user_id){
+        try {
+            Connection conn = Koneksi.koneksiDB();
+            Statement stm = conn.createStatement();
+            String query = "delete from users where user_id = " + "'" + delete_user_id + "'";
+            stm.executeUpdate(query);
+
+        } catch (SQLException | HeadlessException e) {
+            JOptionPane.showMessageDialog(null, e, "Maaf Terjadi Kesalahan!", JOptionPane.ERROR_MESSAGE);
             System.out.println(e);
         }
     }
@@ -246,7 +274,4 @@ final public class AdminDashboard extends Dashboard {
             super.fireEditingStopped();
         }
     }
-//    public static void main(String args[]) {
-//        new AdminDashboard();
-//    }
 }
