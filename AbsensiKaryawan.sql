@@ -18,10 +18,12 @@
 --
 -- Current Database: `AbsensiKaryawan`
 --
+SET GLOBAL time_zone = '+8:00';
+SET @@global.time_zone = '+00:00';
 
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `AbsensiKaryawan` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `absensikaryawan` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 
-USE `AbsensiKaryawan`;
+USE `absensikaryawan`;
 
 --
 -- Table structure for table `absen_harian`
@@ -36,7 +38,7 @@ CREATE TABLE `absen_harian` (
   `absen_time` varchar(20) DEFAULT NULL,
   KEY `fk_user_id` (`user_id`),
   CONSTRAINT `fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -65,7 +67,7 @@ CREATE TABLE `users` (
   `user_type` varchar(10) DEFAULT 'USER',
   `password` varchar(20) NOT NULL,
   PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
